@@ -14,8 +14,20 @@
         .whisky-info { display: flex; align-items: center; width: 100%; }
         .whisky-image { width: 50px; height: 50px; object-fit: cover; margin-right: 15px; border-radius: 5px; }
         .whisky-description { font-size: 0.9em; color: #666; margin-top: 5px; }
-        .rating { color: gold; display: flex; gap: 5px; align-items: center; font-size: 1.2em; }
-        .rating span { font-size: 1.2em; }
+        .rating { 
+            color: #ddd;  /* 빈 별의 색상 */
+            display: flex; 
+            gap: 5px; 
+            align-items: center; 
+            font-size: 1.2em; 
+        }
+        .rating .filled {
+            color: gold;  /* 채워진 별의 색상 */
+        }
+        .rating span.score { 
+            font-size: 1.2em;
+            color: #333;  /* 숫자 평점의 색상 */
+        }
         .hexagon-chart { width: 300px; height: 300px; margin: 20px auto; }
         #whisky-list { margin-bottom: 30px; }
         .loading {
@@ -187,6 +199,22 @@
             return typeMap[type] || 'whisky';
         }
 
+        function getStarRating(rating) {
+            const stars = [];
+            const fullStars = Math.floor(rating);
+            
+            // 5개의 별을 생성
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    stars.push('<span class="filled">★</span>');
+                } else {
+                    stars.push('<span>★</span>');
+                }
+            }
+            
+            return stars.join('');
+        }
+
         function populateWhiskyList(isInitial = false) {
             if (isLoading || !hasMoreItems) return;
             
@@ -216,8 +244,8 @@
                         <img src="${whisky.image}" class="whisky-image">
                         <strong>${whisky.name}</strong>
                         <div class="rating">
-                            ${'★'.repeat(Math.round(whisky.rating))}
-                            <span>(${whisky.rating})</span>
+                            ${getStarRating(whisky.rating)}
+                            <span class="score">(${whisky.rating})</span>
                         </div>
                         <span class="drink-type ${getTypeClass(whisky.type)}">${whisky.type}</span>
                     </div>
