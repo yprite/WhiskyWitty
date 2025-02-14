@@ -14,8 +14,20 @@
         .whisky-info { display: flex; align-items: center; width: 100%; }
         .whisky-image { width: 50px; height: 50px; object-fit: cover; margin-right: 15px; border-radius: 5px; }
         .whisky-description { font-size: 0.9em; color: #666; margin-top: 5px; }
-        .rating { color: gold; display: flex; gap: 5px; align-items: center; font-size: 1.2em; }
-        .rating span { font-size: 1.2em; }
+        .rating { 
+            color: #ddd;  /* 빈 별의 색상 */
+            display: flex; 
+            gap: 5px; 
+            align-items: center; 
+            font-size: 1.2em; 
+        }
+        .rating .filled {
+            color: gold;  /* 채워진 별의 색상 */
+        }
+        .rating span.score { 
+            font-size: 1.2em;
+            color: #333;  /* 숫자 평점의 색상 */
+        }
         .hexagon-chart { width: 300px; height: 300px; margin: 20px auto; }
         #whisky-list { margin-bottom: 30px; }
         .loading {
@@ -36,13 +48,33 @@
         .drink-type.soju { background-color: #d4edda; color: #155724; }
         .drink-type.makgeolli { background-color: #cce5ff; color: #004085; }
         .drink-type.beer { background-color: #f8d7da; color: #721c24; }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .profile-input.is-invalid {
+            border-color: #dc3545;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>위스키 평가</h1>
-        <input type="text" id="search" class="form-control" placeholder="위스키 검색..." oninput="searchWhiskies()">
+        <div class="row mb-4">
+            <div class="col-md-9">
+                <input type="text" id="search" class="form-control" placeholder="위스키 검색..." oninput="searchWhiskies()">
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    추가
+                </button>
+            </div>
+        </div>
         <div id="whisky-list"></div>
     </div>
 
@@ -65,6 +97,74 @@
         </div>
     </div>
     
+    <!-- 아이템 추가 모달 -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">새로운 아이템 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">이름</label>
+                            <input type="text" class="form-control" id="itemName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemType" class="form-label">주종</label>
+                            <select class="form-select" id="itemType" required>
+                                <option value="위스키">위스키</option>
+                                <option value="소주">소주</option>
+                                <option value="막걸리">막걸리</option>
+                                <option value="맥주">맥주</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemDescription" class="form-label">설명</label>
+                            <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                        </div>
+
+                        <!-- 술 프로필 입력 필드는 유지 -->
+                        <div class="mb-3">
+                            <label class="form-label">술 프로필 (0-5)</label>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-smoothness" class="form-label">부드러움</label>
+                                    <input type="number" class="form-control profile-input" id="profile-smoothness" min="0" max="5" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-aroma" class="form-label">향</label>
+                                    <input type="number" class="form-control profile-input" id="profile-aroma" min="0" max="5" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-complexity" class="form-label">복합성</label>
+                                    <input type="number" class="form-control profile-input" id="profile-complexity" min="0" max="5" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-finish" class="form-label">피니시</label>
+                                    <input type="number" class="form-control profile-input" id="profile-finish" min="0" max="5" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-balance" class="form-label">밸런스</label>
+                                    <input type="number" class="form-control profile-input" id="profile-balance" min="0" max="5" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label for="profile-intensity" class="form-label">강도</label>
+                                    <input type="number" class="form-control profile-input" id="profile-intensity" min="0" max="5" step="0.1" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewItem()">추가하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script>
         let hexagonChartInstance;
         let currentPage = 0;
@@ -75,7 +175,7 @@
         if (!window.whiskyData) {
             window.whiskyData = [];
             const drinkTypes = ['위스키', '소주', '막걸리', '맥주'];
-            for (let i = 1; i <= 100; i++) {
+            for (let i = 1; i <= 1; i++) {
                 const randomType = drinkTypes[Math.floor(Math.random() * drinkTypes.length)];
                 window.whiskyData.push({
                     name: `${randomType} ${i}`,
@@ -97,6 +197,22 @@
                 '맥주': 'beer'
             };
             return typeMap[type] || 'whisky';
+        }
+
+        function getStarRating(rating) {
+            const stars = [];
+            const fullStars = Math.floor(rating);
+            
+            // 5개의 별을 생성
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    stars.push('<span class="filled">★</span>');
+                } else {
+                    stars.push('<span>★</span>');
+                }
+            }
+            
+            return stars.join('');
         }
 
         function populateWhiskyList(isInitial = false) {
@@ -128,8 +244,8 @@
                         <img src="${whisky.image}" class="whisky-image">
                         <strong>${whisky.name}</strong>
                         <div class="rating">
-                            ${'★'.repeat(Math.round(whisky.rating))}
-                            <span>(${whisky.rating})</span>
+                            ${getStarRating(whisky.rating)}
+                            <span class="score">(${whisky.rating})</span>
                         </div>
                         <span class="drink-type ${getTypeClass(whisky.type)}">${whisky.type}</span>
                     </div>
@@ -215,9 +331,91 @@
             populateWhiskyList();
         }
 
+        function validateProfileInput(input) {
+            const value = parseFloat(input.value);
+            const errorDiv = input.nextElementSibling;
+            
+            if (isNaN(value) || value < 0 || value > 5) {
+                input.classList.add('is-invalid');
+                errorDiv.style.display = 'block';
+                return false;
+            } else {
+                input.classList.remove('is-invalid');
+                errorDiv.style.display = 'none';
+                return true;
+            }
+        }
+
+        function calculateAverageRating(ratingsArray) {
+            const sum = ratingsArray.reduce((acc, val) => acc + parseFloat(val), 0);
+            return (sum / ratingsArray.length).toFixed(1);
+        }
+
+        function addNewItem() {
+            const name = document.getElementById('itemName').value;
+            const type = document.getElementById('itemType').value;
+            const description = document.getElementById('itemDescription').value;
+
+            // 프로필 입력값 검증
+            const profileInputs = document.querySelectorAll('.profile-input');
+            let isValid = true;
+            const ratingsArray = [];
+
+            profileInputs.forEach(input => {
+                const value = parseFloat(input.value);
+                if (!validateProfileInput(input)) {
+                    isValid = false;
+                }
+                ratingsArray.push(value);
+            });
+
+            if (!name || !type || !description || !isValid) {
+                alert('모든 필드를 올바르게 입력해주세요.');
+                return;
+            }
+
+            // 평균 평점 계산
+            const averageRating = calculateAverageRating(ratingsArray);
+
+            const newItem = {
+                name: name,
+                type: type,
+                description: description,
+                rating: averageRating,  // 자동 계산된 평균값 사용
+                image: `https://via.placeholder.com/50?text=${name[0]}`,
+                reviews: [],
+                ratingsArray: ratingsArray.map(r => r.toFixed(1))
+            };
+
+            window.whiskyData.unshift(newItem);
+            
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+            modal.hide();
+            
+            // 폼 초기화
+            document.getElementById('addItemForm').reset();
+            
+            // 리스트 새로고침
+            currentPage = 0;
+            hasMoreItems = true;
+            populateWhiskyList(true);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             populateWhiskyList(true);
             window.addEventListener('scroll', handleScroll);
+
+            // 프로필 입력 필드들에 유효성 검사 추가
+            const profileInputs = document.querySelectorAll('.profile-input');
+            profileInputs.forEach(input => {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = '0~5 사이의 값을 입력하세요';
+                input.insertAdjacentElement('afterend', errorDiv);
+
+                input.addEventListener('input', () => validateProfileInput(input));
+            });
         });
     </script>
 </body>
