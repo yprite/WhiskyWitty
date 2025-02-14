@@ -42,7 +42,16 @@
 <body>
     <div class="container">
         <h1>위스키 평가</h1>
-        <input type="text" id="search" class="form-control" placeholder="위스키 검색..." oninput="searchWhiskies()">
+        <div class="row mb-4">
+            <div class="col-md-9">
+                <input type="text" id="search" class="form-control" placeholder="위스키 검색..." oninput="searchWhiskies()">
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    추가
+                </button>
+            </div>
+        </div>
         <div id="whisky-list"></div>
     </div>
 
@@ -60,6 +69,47 @@
                     <h5 class="mt-3">리뷰 작성</h5>
                     <input type="text" id="modal-review-text" class="form-control" placeholder="리뷰를 작성해주세요">
                     <button class="btn btn-primary mt-2" onclick="addReview()">등록</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 아이템 추가 모달 -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">새로운 아이템 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">이름</label>
+                            <input type="text" class="form-control" id="itemName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemType" class="form-label">주종</label>
+                            <select class="form-select" id="itemType" required>
+                                <option value="위스키">위스키</option>
+                                <option value="소주">소주</option>
+                                <option value="막걸리">막걸리</option>
+                                <option value="맥주">맥주</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemDescription" class="form-label">설명</label>
+                            <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemRating" class="form-label">평점 (0-5)</label>
+                            <input type="number" class="form-control" id="itemRating" min="0" max="5" step="0.1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewItem()">추가하기</button>
                 </div>
             </div>
         </div>
@@ -213,6 +263,42 @@
             currentPage = 0;
             hasMoreItems = true;
             populateWhiskyList();
+        }
+
+        function addNewItem() {
+            const name = document.getElementById('itemName').value;
+            const type = document.getElementById('itemType').value;
+            const description = document.getElementById('itemDescription').value;
+            const rating = parseFloat(document.getElementById('itemRating').value);
+
+            if (!name || !type || !description || isNaN(rating)) {
+                alert('모든 필드를 올바르게 입력해주세요.');
+                return;
+            }
+
+            const newItem = {
+                name: name,
+                type: type,
+                description: description,
+                rating: rating.toFixed(1),
+                image: `https://via.placeholder.com/50?text=${name[0]}`,
+                reviews: [],
+                ratingsArray: Array(6).fill(rating.toFixed(1))
+            };
+
+            window.whiskyData.unshift(newItem);
+            
+            // 모달 닫기
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+            modal.hide();
+            
+            // 폼 초기화
+            document.getElementById('addItemForm').reset();
+            
+            // 리스트 새로고침
+            currentPage = 0;
+            hasMoreItems = true;
+            populateWhiskyList(true);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
