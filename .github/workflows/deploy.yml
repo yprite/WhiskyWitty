@@ -38,8 +38,13 @@ jobs:
     # 코드 배포 및 도커 실행
     - name: Deploy to EC2
       run: |
-        # 프로젝트 폴더 생성
-        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'mkdir -p ~/WhiskyWitty'
+        # 기존 폴더 제거 및 새 프로젝트 폴더 생성
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} '
+          if [ -d ~/WhiskyWitty ]; then
+            sudo rm -rf ~/WhiskyWitty
+          fi
+          mkdir -p ~/WhiskyWitty
+        '
         
         # 코드 전송
         scp -r ./* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/WhiskyWitty/
