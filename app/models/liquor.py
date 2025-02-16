@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime
 
 class Profile(BaseModel):
@@ -11,10 +11,14 @@ class Profile(BaseModel):
     intensity: float = Field(..., ge=0, le=5, description="강도 점수 (0-5)")
 
 class Review(BaseModel):
-    content: str = Field(..., max_length=200)
+    id: str = Field(..., description="리뷰 ID")
+    content: str = Field(..., description="리뷰 내용")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    likes: int = Field(default=0, description="좋아요 수")
 
 class ReviewCreate(BaseModel):
-    content: str = Field(..., max_length=200)
+    content: str = Field(..., min_length=1, max_length=500)
 
 class Store(BaseModel):
     id: str
@@ -35,7 +39,7 @@ class LiquorCreate(LiquorBase):
 
 class Liquor(LiquorBase):
     id: str
-    reviews: List[str] = []
+    reviews: List[Review] = []
     stores: List[Store] = []
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

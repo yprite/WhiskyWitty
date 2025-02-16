@@ -18,7 +18,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 모든 출처 허용
-    allow_credentials=True,
+    allow_credentials=False,  # credentials가 필요없는 경우 False로 설정
     allow_methods=["*"],
     allow_headers=["*"],
 )
