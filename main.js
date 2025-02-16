@@ -10,6 +10,7 @@ let lastUpdateTime = new Date().toISOString();
 let liquorDetail = null;  // 전역 변수로 선언
 let whiskyName = '';     // 현재 선택된 위스키 이름도 전역으로 관리
 let currentSortOption = 'updated_at';  // 정렬 옵션 전역 변수
+let currentLiquorId = null;  // 현재 선택된 주류의 ID를 저장할 변수
 
 // 백엔드 API에서 데이터를 가져오는 함수
 async function fetchLiquorData() {
@@ -97,8 +98,10 @@ function populateWhiskyList(isInitial = false) {
 
 async function showReviews(name) {
     const whisky = window.whiskyData.find(w => w.name === name);
+    currentLiquorId = whisky.id;  // 현재 주류 ID 저장
     whiskyName = name;
     document.getElementById('modal-whisky-name').textContent = name;
+    document.getElementById('liquor-description').textContent = whisky.description;
     const reviewContainer = document.getElementById('modal-reviews');
     
     try {
@@ -108,6 +111,42 @@ async function showReviews(name) {
             throw new Error('프로필 데이터를 가져오는데 실패했습니다.');
         }
         liquorDetail = await profileResponse.json();
+
+        // 판매처 정보 처리
+        const stores = liquorDetail.stores || [];
+        const prices = stores.map(store => store.price).filter(price => price);
+        
+        // 가격 정보 계산 및 표시
+        if (prices.length > 0) {
+            const avgPrice = Math.round(prices.reduce((a, b) => a + b) / prices.length);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            
+            document.getElementById('liquor-avg-price').textContent = avgPrice.toLocaleString();
+            document.getElementById('liquor-min-price').textContent = minPrice.toLocaleString();
+            document.getElementById('liquor-max-price').textContent = maxPrice.toLocaleString();
+        } else {
+            document.getElementById('liquor-avg-price').textContent = '정보 없음';
+            document.getElementById('liquor-min-price').textContent = '0';
+            document.getElementById('liquor-max-price').textContent = '0';
+        }
+
+        // 판매처 목록 표시
+        const sellerList = document.getElementById('seller-list');
+        sellerList.innerHTML = stores.length > 0 
+            ? stores.map(store => `
+                <div class="seller-item">
+                    <div class="seller-info">
+                        <div class="seller-name">${store.name}</div>
+                        <div class="seller-address">${store.address}</div>
+                        ${store.contact ? `<div class="seller-contact">${store.contact}</div>` : ''}
+                    </div>
+                    <div class="seller-price">
+                        ${store.price ? `${store.price.toLocaleString()}원` : '가격 정보 없음'}
+                    </div>
+                </div>
+            `).join('')
+            : '<p class="text-muted">등록된 판매처가 없습니다.</p>';
 
         // 리뷰 목록 가져오기
         const response = await fetch(`http://localhost:8000/api/liquors/${whisky.id}/reviews?sort=${currentSortOption}`);
@@ -130,14 +169,14 @@ async function showReviews(name) {
                                     : ''}
                                 <br>
                                 <span class="like-count">
-                                    <i class="bi bi-heart-fill text-danger"></i> ${review.likes}
+                                    <i class="bi bi-hand-thumbs-up-fill text-primary"></i> ${review.likes}
                                 </span>
                             </small>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-danger me-2" 
+                            <button class="btn btn-sm btn-outline-primary me-2" 
                                 onclick="likeReview('${whisky.id}', '${review.id}')">
-                                <i class="bi bi-heart"></i>
+                                <i class="bi bi-hand-thumbs-up"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-primary" 
                                 onclick="editReview('${whisky.id}', '${review.id}')">수정</button>
@@ -159,8 +198,14 @@ async function showReviews(name) {
         }, { once: true });
         
         reviewModal.show();
-
-        reviewModal._element.addEventListener('shown.bs.modal', () => {
+        
+        // 모달이 완전히 표시된 후 차트 그리기
+        document.getElementById('reviewModal').addEventListener('shown.bs.modal', () => {
+            drawHexagonChart(liquorDetail.profile);
+        });
+        
+        // 탭 전환 시에도 차트 다시 그리기
+        document.getElementById('info-tab').addEventListener('shown.bs.tab', () => {
             drawHexagonChart(liquorDetail.profile);
         });
     } catch (error) {
@@ -548,6 +593,98 @@ async function likeReview(liquorId, reviewId) {
         await showReviews(whiskyName);
     } catch (error) {
         console.error('Error liking review:', error);
+        showToast(error.message);
+    }
+}
+
+// 전화번호 입력 시 자동으로 하이픈 추가
+function formatPhoneNumber(event) {
+    const input = event.target;
+    let value = input.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+    
+    if (value.length <= 2) {
+        input.value = value;
+    } else if (value.length <= 6) {
+        input.value = value.slice(0, 2) + '-' + value.slice(2);
+    } else {
+        input.value = value.slice(0, 2) + '-' + value.slice(2, 6) + '-' + value.slice(6, 10);
+    }
+}
+
+// 판매처 추가 모달 표시
+function showAddStoreModal() {
+    // 기존 모달 인스턴스 제거
+    const existingModal = bootstrap.Modal.getInstance(document.getElementById('addStoreModal'));
+    if (existingModal) {
+        existingModal.dispose();
+    }
+    
+    // 폼 초기화
+    document.getElementById('addStoreForm').reset();
+    
+    // 전화번호 입력 이벤트 리스너 추가
+    const contactInput = document.getElementById('storeContact');
+    contactInput.addEventListener('input', formatPhoneNumber);
+    
+    // 새 모달 표시
+    const modal = new bootstrap.Modal(document.getElementById('addStoreModal'));
+    modal.show();
+}
+
+// 판매처 추가
+async function addStore() {
+    const storeName = document.getElementById('storeName').value;
+    const storeAddress = document.getElementById('storeAddress').value;
+    const storeContact = document.getElementById('storeContact').value;
+    const storePrice = parseInt(document.getElementById('storePrice').value);
+
+    // 전화번호 유효성 검사
+    const phoneRegex = /^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}$/;
+    const contactInput = document.getElementById('storeContact');
+
+    if (storeContact && !phoneRegex.test(storeContact)) {
+        contactInput.classList.add('is-invalid');
+        showToast('올바른 전화번호 형식으로 입력해주세요.');
+        return;
+    } else {
+        contactInput.classList.remove('is-invalid');
+    }
+
+    if (!storeName || !storePrice) {
+        showToast('필수 정보를 모두 입력해주세요.');
+        return;
+    }
+
+    const storeData = {
+        name: storeName,
+        address: storeAddress || null,
+        contact: storeContact || null,
+        price: storePrice
+    };
+
+    try {
+        const response = await fetch(`http://localhost:8000/api/liquors/${currentLiquorId}/stores`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(storeData)
+        });
+
+        if (!response.ok) {
+            throw new Error('판매처 추가에 실패했습니다.');
+        }
+
+        // 모달 닫기
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addStoreModal'));
+        modal.hide();
+
+        showToast('판매처가 추가되었습니다.');
+        
+        // 현재 화면 새로고침
+        await showReviews(whiskyName);
+    } catch (error) {
+        console.error('Error adding store:', error);
         showToast(error.message);
     }
 }

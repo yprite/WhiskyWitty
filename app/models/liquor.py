@@ -25,6 +25,13 @@ class Store(BaseModel):
     name: str
     address: str
     contact: Optional[str]
+    price: int
+
+class StoreCreate(BaseModel):
+    name: str
+    address: Optional[str] = None
+    contact: Optional[str] = None
+    price: int = Field(..., ge=0, description="판매 가격")
 
 class LiquorBase(BaseModel):
     name: str
