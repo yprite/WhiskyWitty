@@ -15,7 +15,7 @@ let currentLiquorId = null;  // 현재 선택된 주류의 ID를 저장할 변�
 // 백엔드 API에서 데이터를 가져오는 함수
 async function fetchLiquorData() {
     try {
-        const response = await fetch('http://localhost:8000/api/liquors');
+        const response = await fetch('http://localhost:20010/api/liquors');
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -106,7 +106,7 @@ async function showReviews(name) {
     
     try {
         // 프로필 정보 가져오기
-        const profileResponse = await fetch(`http://localhost:8000/api/liquors/${whisky.id}`);
+        const profileResponse = await fetch(`http://localhost:20010/api/liquors/${whisky.id}`);
         if (!profileResponse.ok) {
             throw new Error('프로필 데이터를 가져오는데 실패했습니다.');
         }
@@ -149,7 +149,7 @@ async function showReviews(name) {
             : '<p class="text-muted">등록된 판매처가 없습니다.</p>';
 
         // 리뷰 목록 가져오기
-        const response = await fetch(`http://localhost:8000/api/liquors/${whisky.id}/reviews?sort=${currentSortOption}`);
+        const response = await fetch(`http://localhost:20010/api/liquors/${whisky.id}/reviews?sort=${currentSortOption}`);
         if (!response.ok) {
             throw new Error('데이터를 가져오는데 실패했습니다.');
         }
@@ -381,7 +381,7 @@ function addNewItem() {
     };
 
     // 서버로 POST 요청 보내기
-    fetch('http://localhost:8000/api/liquors', {
+    fetch('http://localhost:20010/api/liquors', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -426,7 +426,7 @@ function submitReview() {
         return;
     }
 
-    fetch(`http://localhost:8000/api/liquors/${whisky.id}/reviews`, {
+    fetch(`http://localhost:20010/api/liquors/${whisky.id}/reviews`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -467,7 +467,7 @@ function submitReview() {
 // 주기적으로 데이터를 갱신하는 함수
 async function periodicUpdate() {
     try {
-        const response = await fetch(`http://localhost:8000/api/liquors?after=${lastUpdateTime}`);
+        const response = await fetch(`http://localhost:20010/api/liquors?after=${lastUpdateTime}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -519,7 +519,7 @@ async function deleteReview(liquorId, reviewIndex) {
     }
 
     try {
-        const response = await fetch(`http://localhost:8000/api/liquors/${liquorId}/reviews/${reviewIndex}`, {
+        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}/reviews/${reviewIndex}`, {
             method: 'DELETE'
         });
 
@@ -553,7 +553,7 @@ async function editReview(liquorId, reviewId) {
     if (!newContent || newContent === currentReview.content) return;
 
     try {
-        const response = await fetch(`http://localhost:8000/api/liquors/${liquorId}/reviews/${reviewId}`, {
+        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}/reviews/${reviewId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -581,7 +581,7 @@ async function sortReviews(sortOption) {
 
 async function likeReview(liquorId, reviewId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/liquors/${liquorId}/reviews/${reviewId}/like`, {
+        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}/reviews/${reviewId}/like`, {
             method: 'POST'
         });
 
@@ -680,7 +680,7 @@ async function addStore() {
     };
 
     try {
-        const response = await fetch(`http://localhost:8000/api/liquors/${currentLiquorId}/stores`, {
+        const response = await fetch(`http://localhost:20010/api/liquors/${currentLiquorId}/stores`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

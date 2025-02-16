@@ -8,24 +8,24 @@ LIQUOR_COLLECTION = "liquors"
 FILTER_COLLECTION = "filters"
 
 class Database:
-    client = None
+    client: AsyncIOMotorClient = None
+    db_name: str = "liquordb"
 
-    @staticmethod
-    async def connect_db(uri: str):
-        Database.client = AsyncIOMotorClient(uri)
-        print("Connected to MongoDB")
+    @classmethod
+    async def connect_db(cls, mongodb_url: str):
+        cls.client = AsyncIOMotorClient(mongodb_url)
+        # 데이터베이스 연결 테스트
+        await cls.client.admin.command('ping')
+        print(f"Connected to MongoDB at {mongodb_url}")
 
-    @staticmethod
-    async def close_db():
-        if Database.client:
-            Database.client.close()
-            print("Disconnected from MongoDB")
+    @classmethod
+    async def close_db(cls):
+        if cls.client:
+            cls.client.close()
 
-    @staticmethod
-    def get_db():
-        if Database.client is None:
-            raise ConnectionError("Database is not connected")
-        return Database.client.get_database()
+    @classmethod
+    def get_db(cls):
+        return cls.client[cls.db_name]
 
     @classmethod
     async def fetch_all_liquors(cls):

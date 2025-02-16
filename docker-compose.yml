@@ -1,23 +1,37 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
-    depends_on:
-      - mongodb
-    environment:
-      - MONGODB_URL=mongodb://mongodb:27017/mydatabase
-      - PYTHONPATH=/app
+      - "10010:80"
     volumes:
-      - .:/app
+      - ./frontend/src:/usr/local/apache2/htdocs
+    depends_on:
+      - app
+    environment:
+      - FLASK_APP=app.main
+      - FLASK_ENV=development
+      - BACKEND_URL=http://app:8000
+
+  app:
+    build: ./backend
+    ports:
+      - "20010:8000"
+    depends_on:
+      - db
+    environment:
+      - MONGODB_URL=mongodb://db:27017/liquordb
+    volumes:
+      - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  mongodb:
+  db:
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - "20011:27017"
     volumes:
       - mongodb_data:/data/db
 
