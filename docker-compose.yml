@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
@@ -10,13 +10,13 @@ services:
     volumes:
       - ./frontend/src:/usr/local/apache2/htdocs
     depends_on:
-      - app
+      - backend
     environment:
       - FLASK_APP=app.main
       - FLASK_ENV=development
-      - BACKEND_URL=http://app:8000
+      - BACKEND_URL=http://backend:8000
 
-  app:
+  backend:
     build: ./backend
     ports:
       - "20010:8000"
