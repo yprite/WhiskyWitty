@@ -7,6 +7,7 @@
     <title>우리들의 술평가</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -135,7 +136,7 @@
             padding: 0;
             overflow: hidden;
         }
-        
+
         .chart-section {
             flex: 0 0 auto;
             height: 380px;
@@ -144,7 +145,7 @@
             border-bottom: 1px solid #dee2e6;
             margin-bottom: 0;
         }
-        
+
         .reviews-section {
             flex: 1 1 auto;
             padding: 20px;
@@ -153,27 +154,27 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .review-item {
             border-bottom: 1px solid #eee;
             padding: 15px 0;
             margin: 0;
         }
-        
+
         .review-item:last-child {
             border-bottom: none;
         }
-        
+
         .review-item p {
             margin: 0;
             line-height: 1.5;
         }
-        
+
         .hexagon-chart-container {
             height: 280px;
             width: 100%;
         }
-        
+
         .reviews-container {
             flex: 1 1 auto;
             overflow-y: auto;
@@ -183,14 +184,14 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        
+
         .review-input-container {
             flex: 0 0 auto;
             padding: 20px;
             background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
         }
-        
+
         .section-title {
             font-size: 1.1rem;
             font-weight: 500;
@@ -202,21 +203,27 @@
 
         /* 아이템 추가 모달 스타일 */
         #addItemModal .modal-dialog {
-            max-width: 800px;  /* 기본 모달보다 더 넓게 */
-            width: 90%;  /* 화면 너비의 90% */
+            max-width: 800px;
+            /* 기본 모달보다 더 넓게 */
+            width: 90%;
+            /* 화면 너비의 90% */
         }
-        
+
         #addItemModal .modal-body {
-            padding: 20px;  /* 패딩 추가 */
+            padding: 20px;
+            /* 패딩 추가 */
         }
-        
+
         #addItemModal .form-label {
-            font-weight: 500;  /* 라벨 텍스트 강조 */
+            font-weight: 500;
+            /* 라벨 텍스트 강조 */
         }
-        
+
         #addItemModal .profile-input {
-            font-size: 1.1rem;  /* 입력 필드 텍스트 크기 증가 */
-            padding: 0.5rem;    /* 입력 필드 여백 증가 */
+            font-size: 1.1rem;
+            /* 입력 필드 텍스트 크기 증가 */
+            padding: 0.5rem;
+            /* 입력 필드 여백 증가 */
         }
 
         /* 리뷰 모달 스타일 */
@@ -240,6 +247,139 @@
         #reviewModal .modal-footer {
             flex: 0 0 auto;
             padding: 1rem 1.5rem;
+        }
+
+        .like-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .like-count i {
+            font-size: 1.1em;
+        }
+
+        .btn-outline-primary i {
+            pointer-events: none;
+        }
+
+        .btn-outline-primary:hover i {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+            padding: 0.5rem 1rem 0;
+            background-color: #f8f9fa;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            background: none;
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-pane {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .review-input-container {
+            padding: 1rem;
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .price-info {
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .price-summary {
+            background-color: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .sellers-section {
+            margin-top: 1rem;
+        }
+
+        .seller-list {
+            margin-top: 1rem;
+        }
+
+        .seller-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            background-color: white;
+        }
+
+        .seller-info {
+            flex: 1;
+        }
+
+        .seller-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .seller-address {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .seller-price {
+            font-weight: 500;
+            color: #0d6efd;
+            margin-left: 1rem;
+            white-space: nowrap;
+        }
+
+        .seller-contact {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        /* 판매처 추가 모달 스타일 */
+        #addStoreModal .modal-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin: 0;
+            width: calc(100% - 20px);
+            max-width: 520px;  /* 기본 500px보다 20px 더 크게 */
+        }
+
+        #addStoreModal .modal-content {
+            padding: 10px;  /* 내부 여백 추가 */
+        }
+
+        #addStoreModal .modal-body {
+            padding: 20px;  /* 본문 여백 증가 */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -268,33 +408,89 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalLabel"><span id="modal-whisky-name"></span>의 리뷰</h5>
+                    <h5 class="modal-title" id="reviewModalLabel"><span id="modal-whisky-name"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- 차트 섹션 -->
-                    <div class="chart-section">
-                        <h6 class="section-title">프로필</h6>
-                        <div class="hexagon-chart-container">
-                            <canvas id="hexagonChart"></canvas>
+                    <!-- 탭 네비게이션 -->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
+                                data-bs-target="#info-tab-pane" type="button" role="tab">상세 정보</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="review-tab" data-bs-toggle="tab"
+                                data-bs-target="#review-tab-pane" type="button" role="tab">리뷰</button>
+                        </li>
+                    </ul>
+
+                    <!-- 탭 컨텐츠 -->
+                    <div class="tab-content" id="myTabContent">
+                        <!-- 상세 정보 탭 -->
+                        <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" tabindex="0">
+                            <div class="p-3">
+                                <div class="mb-4">
+                                    <h6 class="section-title">상품 설명</h6>
+                                    <p id="liquor-description" class="mb-3"></p>
+                                    <div class="price-summary mb-3">
+                                        <strong>평균 가격:</strong>
+                                        <span id="liquor-avg-price"></span>원
+                                        <small class="text-muted">
+                                            (최저 <span id="liquor-min-price"></span>원
+                                            ~ 최고 <span id="liquor-max-price"></span>원)
+                                        </small>
+                                    </div>
+
+                                    <div class="sellers-section">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="section-title mb-0">판매처</h6>
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                onclick="showAddStoreModal()">
+                                                <i class="bi bi-plus-lg"></i> 판매처 추가
+                                            </button>
+                                        </div>
+                                        <div class="seller-list" id="seller-list">
+                                            <!-- 판매처 목록이 여기에 동적으로 추가됩니다 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chart-section">
+                                    <h6 class="section-title">프로필</h6>
+                                    <div class="hexagon-chart-container">
+                                        <canvas id="hexagonChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 리뷰 탭 -->
+                        <div class="tab-pane fade" id="review-tab-pane" role="tabpanel" tabindex="0">
+                            <div class="reviews-section">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="section-title mb-0">리뷰 목록</h6>
+                                    <select class="form-select form-select-sm" id="reviewSort"
+                                        onchange="sortReviews(this.value)" style="width: auto;">
+                                        <option value="updated_at">최신순</option>
+                                        <option value="likes">인기순</option>
+                                    </select>
+                                </div>
+                                <div class="reviews-container" id="modal-reviews">
+                                </div>
+
+                                <!-- 리뷰 입력 폼 -->
+                                <div class="review-input-container">
+                                    <div class="input-group">
+                                        <input type="text" id="reviewInput" class="form-control"
+                                            placeholder="리뷰를 입력하세요">
+                                        <button class="btn btn-primary" onclick="submitReview()">
+                                            작성
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <!-- 리뷰 섹션 -->
-                    <div class="reviews-section">
-                        <h6 class="section-title">리뷰 목록</h6>
-                        <div class="reviews-container" id="modal-reviews"></div>
-                    </div>
-                    
-                    <!-- 리뷰 입력 폼 -->
-                    <div class="review-input-container">
-                        <h6 class="section-title">리뷰 작성</h6>
-                        <input type="text" id="reviewInput" class="form-control" placeholder="리뷰를 입력하세요">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                    <button type="button" class="btn btn-primary" onclick="submitReview()">리뷰 제출</button>
                 </div>
             </div>
         </div>
@@ -383,6 +579,53 @@
             </div>
             <div class="toast-body">
                 새로운 주류가 추가되었습니다.
+            </div>
+        </div>
+    </div>
+
+    <!-- 판매처 추가 모달 -->
+    <div class="modal fade" id="addStoreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">판매처 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStoreForm">
+                        <div class="mb-3">
+                            <label for="storeName" class="form-label">판매처 이름</label>
+                            <input type="text" class="form-control" id="storeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="storeAddress" class="form-label">주소</label>
+                            <input type="text" class="form-control" id="storeAddress" 
+                                   placeholder="선택사항">
+                        </div>
+                        <div class="mb-3">
+                            <label for="storeContact" class="form-label">연락처</label>
+                            <input type="tel" class="form-control" id="storeContact" 
+                                   placeholder="예: 02-1234-5678 또는 010-1234-5678"
+                                   pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}"
+                                   title="전화번호 형식으로 입력해주세요 (예: 02-1234-5678 또는 010-1234-5678)">
+                            <div class="invalid-feedback">
+                                올바른 전화번호 형식으로 입력해주세요.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="storePrice" class="form-label">판매 가격</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="storePrice" 
+                                       min="0" step="100" required>
+                                <span class="input-group-text">원</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="addStore()">추가</button>
+                </div>
             </div>
         </div>
     </div>

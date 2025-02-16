@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.routers import liquor, filter
+from app.routers import liquor, review, store, filter
 from .database import Database
 import os
 
@@ -18,13 +18,15 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 모든 출처 허용
-    allow_credentials=True,
+    allow_credentials=False,  # credentials가 필요없는 경우 False로 설정
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # 라우터 등록
 app.include_router(liquor.router, prefix="/api", tags=["liquors"])
+app.include_router(review.router, prefix="/api", tags=["reviews"])
+app.include_router(store.router, prefix="/api", tags=["stores"])
 app.include_router(filter.router, prefix="/api", tags=["filters"])
 
 # 데이터베이스 연결 이벤트
