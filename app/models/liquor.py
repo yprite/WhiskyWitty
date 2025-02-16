@@ -41,3 +41,4 @@ class LiquorSummary(BaseModel):
     type: str
     rating: float
     image: str
+    description: str = Field(..., description="주류 설명")
