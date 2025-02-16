@@ -31,6 +31,10 @@ async function fetchLiquors() {
         liquorList.innerHTML = '';
 
         for (const liquor of liquors) {
+            // 각 주류의 상세 정보를 가져옴
+            const detailResponse = await fetch(`http://localhost:8000/api/liquors/${liquor.id}`);
+            const liquorDetail = await detailResponse.json();
+            
             const liquorItem = document.createElement('div');
             liquorItem.className = 'liquor-item mb-3';
             liquorItem.innerHTML = `
@@ -39,7 +43,30 @@ async function fetchLiquors() {
                         <h5 class="card-title">${liquor.name}</h5>
                         <p class="card-text">종류: ${liquor.type}</p>
                         <p class="card-text">평점: ${liquor.rating}</p>
+                        <div class="profile-section mt-2">
+                            <h6>평점 구성요소</h6>
+                            <div class="profile-details border rounded p-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1">부드러움: ${liquorDetail.profile.smoothness}</p>
+                                        <p class="mb-1">향: ${liquorDetail.profile.aroma}</p>
+                                        <p class="mb-1">복합성: ${liquorDetail.profile.complexity}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-1">피니시: ${liquorDetail.profile.finish}</p>
+                                        <p class="mb-1">밸런스: ${liquorDetail.profile.balance}</p>
+                                        <p class="mb-1">강도: ${liquorDetail.profile.intensity}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <p class="card-text">설명: ${liquor.description}</p>
+                        <div class="stores-section mt-3">
+                            <h6>판매처 목록</h6>
+                            <div class="store-list list-group" id="store-list-${liquor.id}">
+                                <!-- 판매처 목록이 여기에 로드됩니다 -->
+                            </div>
+                        </div>
                         <div class="reviews-section mt-3">
                             <h6>리뷰 목록</h6>
                             <div class="review-list list-group" id="review-list-${liquor.id}">
@@ -52,8 +79,35 @@ async function fetchLiquors() {
             `;
             liquorList.appendChild(liquorItem);
             
-            // 리뷰 목록 로드
-            await loadReviews(liquor.id);
+            // 리뷰와 판매처 목록을 liquorDetail에서 바로 표시
+            const reviewList = document.getElementById(`review-list-${liquor.id}`);
+            reviewList.innerHTML = liquorDetail.reviews.length > 0 
+                ? liquorDetail.reviews.map((review, index) => `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${review.content}</span>
+                        <button class="btn btn-sm btn-danger" 
+                            onclick="deleteReview('${liquor.id}', ${index})">삭제</button>
+                    </div>
+                `).join('')
+                : '<p class="text-muted">아직 리뷰가 없습니다.</p>';
+            
+            const storeList = document.getElementById(`store-list-${liquor.id}`);
+            storeList.innerHTML = liquorDetail.stores.length > 0 
+                ? liquorDetail.stores.map((store) => `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${store.name}</strong>
+                            <div class="store-details mt-1">
+                                ${store.address ? `<div>주소: ${store.address}</div>` : ''}
+                                ${store.contact ? `<div>연락처: ${store.contact}</div>` : ''}
+                                <div>가격: ${store.price.toLocaleString()}원</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-danger" 
+                            onclick="deleteStore('${liquor.id}', '${store.id}')">삭제</button>
+                    </div>
+                `).join('')
+                : '<p class="text-muted">등록된 판매처가 없습니다.</p>';
         }
     } catch (error) {
         console.error('Error fetching liquors:', error);
@@ -69,7 +123,7 @@ async function loadReviews(liquorId) {
         reviewList.innerHTML = liquorDetail.reviews.length > 0 
             ? liquorDetail.reviews.map((review, index) => `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>${review}</span>
+                    <span>${review.content}</span>
                     <button class="btn btn-sm btn-danger" 
                         onclick="deleteReview('${liquorId}', ${index})">삭제</button>
                 </div>
@@ -254,6 +308,58 @@ function showToast(message) {
     
     toastEl.querySelector('.toast-body').textContent = message;
     toast.show();
+}
+
+// 판매처 목록 로드 함수
+async function loadStores(liquorId) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/liquors/${liquorId}`);
+        const liquorDetail = await response.json();
+        const storeList = document.getElementById(`store-list-${liquorId}`);
+        
+        storeList.innerHTML = liquorDetail.stores.length > 0 
+            ? liquorDetail.stores.map((store, index) => `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${store.name}</strong>
+                        <div class="store-details mt-1">
+                            ${store.address ? `<div>주소: ${store.address}</div>` : ''}
+                            ${store.contact ? `<div>연락처: ${store.contact}</div>` : ''}
+                            <div>가격: ${store.price.toLocaleString()}원</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" 
+                        onclick="deleteStore('${liquorId}', '${store.id}')">삭제</button>
+                </div>
+            `).join('')
+            : '<p class="text-muted">등록된 판매처가 없습니다.</p>';
+    } catch (error) {
+        console.error('Error loading stores:', error);
+    }
+}
+
+// 판매처 삭제 함수
+async function deleteStore(liquorId, storeId) {
+    if (!confirm('이 판매처를 삭제하시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8000/api/liquors/${liquorId}/stores/${storeId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || '판매처 삭제에 실패했습니다.');
+        }
+
+        showToast('판매처가 삭제되었습니다.');
+        await loadStores(liquorId);  // 판매처 목록 새로고침
+    } catch (error) {
+        console.error('Error deleting store:', error);
+        showToast(error.message);
+    }
 }
 
 // 페이지 로드 시 초기화
