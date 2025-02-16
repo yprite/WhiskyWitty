@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, Body, HTTPException
+from fastapi import APIRouter, Path, Query, Body, HTTPException
 from typing import List
 from ..models.review import Review, ReviewCreate
 from ..database import Database, LIQUOR_COLLECTION

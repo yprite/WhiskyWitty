@@ -3,6 +3,7 @@ from typing import List, Optional
 from ..models.liquor import Liquor, LiquorCreate, LiquorSummary
 from ..database import Database, LIQUOR_COLLECTION, serialize_id
 from datetime import datetime
+from dateutil import parser  # 날짜 파싱을 위한 라이브러리 추가
 from bson import ObjectId
 
 router = APIRouter()
@@ -22,7 +23,13 @@ async def get_liquors(
     query = {}
     
     if after:
-        query["updated_at"] = {"$gt": datetime.fromisoformat(after)}
+        try:
+            query["updated_at"] = {"$gt": parser.parse(after)}
+        except ValueError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid date format: {str(e)}"
+            )
     
     cursor = db[LIQUOR_COLLECTION].find(query).limit(limit)
     return [serialize_id(doc) async for doc in cursor]

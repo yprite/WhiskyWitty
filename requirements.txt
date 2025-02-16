@@ -6,4 +6,5 @@ python-jose[cryptography]
 passlib[bcrypt]
 pydantic
 pytest
-httpx 
+httpx
+python-dateutil>=2.8.2 
