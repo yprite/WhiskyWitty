@@ -602,12 +602,29 @@ function formatPhoneNumber(event) {
     const input = event.target;
     let value = input.value.replace(/[^0-9]/g, ''); // 숫자만 남기기
     
-    if (value.length <= 2) {
+    // 02로 시작하는 경우 특별 처리
+    if (value.startsWith('02')) {
+        if (value.length <= 2) {
+            input.value = value;
+        } else if (value.length <= 6) {
+            input.value = value.slice(0, 2) + '-' + value.slice(2);
+        } else {
+            input.value = value.slice(0, 2) + '-' + value.slice(2, 6) + '-' + value.slice(6, 10);
+        }
+        return;
+    }
+    
+    // 그 외의 경우 3-3-4 또는 3-4-4 형식
+    if (value.length <= 3) {
         input.value = value;
-    } else if (value.length <= 6) {
-        input.value = value.slice(0, 2) + '-' + value.slice(2);
+    } else if (value.length <= 7) {
+        input.value = value.slice(0, 3) + '-' + value.slice(3);
     } else {
-        input.value = value.slice(0, 2) + '-' + value.slice(2, 6) + '-' + value.slice(6, 10);
+        if (value.length <= 10) {
+            input.value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6);
+        } else {
+            input.value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+        }
     }
 }
 
@@ -639,12 +656,12 @@ async function addStore() {
     const storePrice = parseInt(document.getElementById('storePrice').value);
 
     // 전화번호 유효성 검사
-    const phoneRegex = /^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}$/;
+    const phoneRegex = /^(02-[0-9]{3,4}|[0-9]{3}-[0-9]{3,4})-[0-9]{4}$/;
     const contactInput = document.getElementById('storeContact');
 
     if (storeContact && !phoneRegex.test(storeContact)) {
         contactInput.classList.add('is-invalid');
-        showToast('올바른 전화번호 형식으로 입력해주세요.');
+        showToast('올바른 전화번호 형식으로 입력해주세요. (예: 02-1234-5678, 010-1234-5678 또는 000-000-0000)');
         return;
     } else {
         contactInput.classList.remove('is-invalid');
