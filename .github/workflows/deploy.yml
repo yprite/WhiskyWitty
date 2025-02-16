@@ -1,30 +1,56 @@
-name: Deploy to S3 on Release
+name: Deploy to EC2
 
 on:
   release:
-    types: [published]  # Only trigger deployment when a new release is published
+    types: [created]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
-          pip3 install awscli --upgrade --user
-          export PATH=$PATH:$HOME/.local/bin
+    # AWS 자격 증명 설정
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2  # 서울 리전
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+    # SSH 키 설정
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Sync S3 Bucket
-        run: |
-          aws s3 sync . s3://whisky-witty --exclude ".git/*" --delete
+    # 테스트 (현재는 주석 처리)
+    # - name: Run tests
+    #   run: |
+    #     # backend tests
+    #     # cd backend && python -m pytest
+    #     # frontend tests
+    #     # cd frontend && npm test
+
+    # 코드 배포 및 도커 실행
+    - name: Deploy to EC2
+      run: |
+        # 프로젝트 폴더 생성
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'mkdir -p ~/WhiskyWitty'
+        
+        # 코드 전송
+        scp -r ./* ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:~/WhiskyWitty/
+        
+        # 도커 컨테이너 실행
+        ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} '
+          cd ~/WhiskyWitty
+          sudo docker-compose down
+          sudo docker-compose up --build -d
+        '
+
+    # 배포 완료 알림
+    - name: Deployment Status
+      run: echo "Deployment completed successfully!"
