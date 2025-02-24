@@ -4,7 +4,7 @@ let lastUpdateTime = new Date().toISOString();
 // 주기적으로 데이터를 갱신하는 함수
 async function periodicUpdate() {
     try {
-        const response = await fetch(`http://localhost:20010/api/liquors?after=${lastUpdateTime}`);
+        const response = await fetch(`http://3.36.132.159:20010/api/liquors?after=${lastUpdateTime}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -25,14 +25,14 @@ async function periodicUpdate() {
 
 async function fetchLiquors() {
     try {
-        const response = await fetch('http://localhost:20010/api/liquors');
+        const response = await fetch('http://3.36.132.159:20010/api/liquors');
         const liquors = await response.json();
         const liquorList = document.getElementById('liquor-list');
         liquorList.innerHTML = '';
 
         for (const liquor of liquors) {
             // 각 주류의 상세 정보를 가져옴
-            const detailResponse = await fetch(`http://localhost:20010/api/liquors/${liquor.id}`);
+            const detailResponse = await fetch(`http://3.36.132.159:20010/api/liquors/${liquor.id}`);
             const liquorDetail = await detailResponse.json();
             
             const liquorItem = document.createElement('div');
@@ -116,7 +116,7 @@ async function fetchLiquors() {
 
 async function loadReviews(liquorId) {
     try {
-        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}`);
+        const response = await fetch(`http://3.36.132.159:20010/api/liquors/${liquorId}`);
         const liquorDetail = await response.json();
         const reviewList = document.getElementById(`review-list-${liquorId}`);
         
@@ -140,7 +140,7 @@ async function deleteReview(liquorId, reviewIndex) {
     }
 
     try {
-        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}/reviews/${reviewIndex}`, {
+        const response = await fetch(`http://3.36.132.159:20010/api/liquors/${liquorId}/reviews/${reviewIndex}`, {
             method: 'DELETE'
         });
 
@@ -160,7 +160,7 @@ async function deleteReview(liquorId, reviewIndex) {
 async function deleteLiquor(liquorId) {
     if (confirm("정말로 이 항목을 삭제하시겠습니까?")) {
         try {
-            const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}`, {
+            const response = await fetch(`http://3.36.132.159:20010/api/liquors/${liquorId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -179,7 +179,7 @@ async function deleteLiquor(liquorId) {
 // 필터 단어 목록 가져오기
 async function fetchFilterWords() {
     try {
-        const response = await fetch('http://localhost:20010/api/filters');
+        const response = await fetch('http://3.36.132.159:20010/api/filters');
         const words = await response.json();
         
         // 비속어와 광고 키워드 분리
@@ -238,7 +238,7 @@ async function addFilterWord(type) {
     }
     
     try {
-        const response = await fetch('http://localhost:20010/api/filters', {
+        const response = await fetch('http://3.36.132.159:20010/api/filters', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -266,7 +266,7 @@ async function addFilterWord(type) {
 async function deleteFilterWord(id) {
     if (confirm('이 단어를 삭제하시겠습니까?')) {
         try {
-            const response = await fetch(`http://localhost:20010/api/filters/${id}`, {
+            const response = await fetch(`http://3.36.132.159:20010/api/filters/${id}`, {
                 method: 'DELETE'
             });
             
@@ -313,7 +313,7 @@ function showToast(message) {
 // 판매처 목록 로드 함수
 async function loadStores(liquorId) {
     try {
-        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}`);
+        const response = await fetch(`http://3.36.132.159:20010/api/liquors/${liquorId}`);
         const liquorDetail = await response.json();
         const storeList = document.getElementById(`store-list-${liquorId}`);
         
@@ -345,7 +345,7 @@ async function deleteStore(liquorId, storeId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:20010/api/liquors/${liquorId}/stores/${storeId}`, {
+        const response = await fetch(`http://3.36.132.159:20010/api/liquors/${liquorId}/stores/${storeId}`, {
             method: 'DELETE'
         });
 
