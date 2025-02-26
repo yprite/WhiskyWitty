@@ -1,9 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from app.routers import liquor, review, store, filter
 from .database import Database
 import os
+import logging
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 
 app = FastAPI(
     title="주류 리뷰 API",
@@ -13,6 +16,18 @@ app = FastAPI(
     docs_url="/api/docs",  # Swagger UI 경로
     redoc_url="/api/redoc"  # ReDoc 경로
 )
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    logging.error(f"Validation error: {exc}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
 
 # CORS 설정
 app.add_middleware(
@@ -32,7 +47,7 @@ app.include_router(filter.router, prefix="/api", tags=["filters"])
 # 데이터베이스 연결 이벤트
 @app.on_event("startup")
 async def startup_db_client():
-    await Database.connect_db(os.getenv("MONGODB_URL", "mongodb://localhost:27017"))
+    await Database.connect_db(os.getenv("MONGODB_URL", "mongodb://3.36.132.159:27017"))
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

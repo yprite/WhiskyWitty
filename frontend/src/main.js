@@ -16,10 +16,12 @@ let currentLiquorId = null;  // 현재 선택된 주류의 ID를 저장할 변�
 async function fetchLiquorData() {
     try {
         const response = await fetch('http://3.36.132.159:20010/api/liquors');
+        console.log(response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
+
         window.whiskyData = data; // API로부터 받은 데이터를 전역 변수에 저장
         populateWhiskyList(true);
     } catch (error) {
@@ -79,7 +81,7 @@ function populateWhiskyList(isInitial = false) {
         item.onclick = () => showReviews(whisky.name);
         item.innerHTML = `
             <div class="whisky-info">
-                <img src="${whisky.image}" class="whisky-image">
+                <img src="data:image/png;base64,${whisky.image}" class="whisky-image"> <!-- Base64 이미지 설정 -->
                 <strong>${whisky.name}</strong>
                 <div class="rating">
                     ${getStarRating(whisky.rating)}
@@ -101,6 +103,7 @@ async function showReviews(name) {
     currentLiquorId = whisky.id;  // 현재 주류 ID 저장
     whiskyName = name;
     document.getElementById('modal-whisky-name').textContent = name;
+    document.getElementById('modal-liquor-image').src = `data:image/png;base64,${whisky.image}`;
     document.getElementById('liquor-description').textContent = whisky.description;
     const reviewContainer = document.getElementById('modal-reviews');
     
@@ -156,7 +159,7 @@ async function showReviews(name) {
         const reviews = await response.json();
         liquorDetail.reviews = reviews;  // 리뷰 목록 업데이트
         
-        reviewContainer.innerHTML = liquorDetail.reviews.length > 0 
+        reviewContainer.innerHTML = liquorDetail.reviews.length > 0
             ? liquorDetail.reviews.map(review => `
                 <div class="review-item">
                     <div class="d-flex justify-content-between align-items-start">
@@ -164,8 +167,8 @@ async function showReviews(name) {
                             <p class="mb-0">${review.content}</p>
                             <small class="text-muted">
                                 작성: ${formatDateTime(review.created_at)}
-                                ${review.updated_at !== review.created_at 
-                                    ? `(수정됨: ${formatDateTime(review.updated_at)})` 
+                                ${review.updated_at !== review.created_at
+                                    ? `(수정됨: ${formatDateTime(review.updated_at)})`
                                     : ''}
                                 <br>
                                 <span class="like-count">
@@ -174,16 +177,16 @@ async function showReviews(name) {
                             </small>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-primary me-2" 
+                            <button class="btn btn-sm btn-outline-primary me-2"
                                 onclick="likeReview('${whisky.id}', '${review.id}')">
                                 <i class="bi bi-hand-thumbs-up"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-primary" 
+                            <button class="btn btn-sm btn-outline-primary"
                                 onclick="editReview('${whisky.id}', '${review.id}')">수정</button>
                         </div>
                     </div>
                 </div>
-            `).join('') 
+            `).join('')
             : '<p class="text-muted">아직 리뷰가 없습니다.</p>';
             
         const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
@@ -338,6 +341,8 @@ function addNewItem() {
     const name = document.getElementById('itemName').value;
     const type = document.getElementById('itemType').value;
     const description = document.getElementById('itemDescription').value;
+    const imageInput = document.getElementById('itemImage');
+    const imageFile = imageInput.files[0];
 
     // 프로필 입력값 검증
     const profileInputs = document.querySelectorAll('.profile-input');
@@ -370,23 +375,20 @@ function addNewItem() {
         intensity: parseFloat(document.getElementById('profile-intensity').value)
     };
 
-    const newItem = {
-        name: name,
-        type: type,
-        description: description,
-        rating: averageRating,
-        image: `https://via.placeholder.com/50?text=${name[0]}`,
-        reviews: [],
-        profile: profile  // 배열 대신 객체 사용
-    };
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('type', type);
+    formData.append('description', description);
+    formData.append('rating', averageRating);
+    formData.append('profile', JSON.stringify(profile));
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
 
     // 서버로 POST 요청 보내기
     fetch('http://3.36.132.159:20010/api/liquors', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newItem)
+        body: formData
     })
     .then(response => {
         if (response.ok) {
