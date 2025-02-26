@@ -371,15 +371,18 @@
             transform: translate(-50%, -50%);
             margin: 0;
             width: calc(100% - 20px);
-            max-width: 520px;  /* 기본 500px보다 20px 더 크게 */
+            max-width: 520px;
+            /* 기본 500px보다 20px 더 크게 */
         }
 
         #addStoreModal .modal-content {
-            padding: 10px;  /* 내부 여백 추가 */
+            padding: 10px;
+            /* 내부 여백 추가 */
         }
 
         #addStoreModal .modal-body {
-            padding: 20px;  /* 본문 여백 증가 */
+            padding: 20px;
+            /* 본문 여백 증가 */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -430,6 +433,9 @@
                         <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" tabindex="0">
                             <div class="p-3">
                                 <div class="mb-4">
+                                    <div class="text-center mb-3">
+                                        <img id="modal-liquor-image" class="img-fluid" style="max-height: 300px;" alt="주류 이미지">
+                                    </div>
                                     <h6 class="section-title">상품 설명</h6>
                                     <p id="liquor-description" class="mb-3"></p>
                                     <div class="price-summary mb-3">
@@ -524,6 +530,12 @@
                             <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="itemImage" class="form-label">이미지</label>
+                            <input type="file" class="form-control" id="itemImage" accept="image/*">
+                            <div class="form-text">이미지를 선택하지 않으면 기본 이미지가 사용됩니다.</div>
+                        </div>
+
                         <!-- 술 프로필 입력 필드는 유지 -->
                         <div class="mb-3">
                             <label class="form-label">술 프로필 (0-5)</label>
@@ -599,15 +611,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="storeAddress" class="form-label">주소</label>
-                            <input type="text" class="form-control" id="storeAddress" 
-                                   placeholder="선택사항">
+                            <input type="text" class="form-control" id="storeAddress" placeholder="선택사항">
                         </div>
                         <div class="mb-3">
                             <label for="storeContact" class="form-label">연락처</label>
-                            <input type="tel" class="form-control" id="storeContact" 
-                                   placeholder="예: 02-1234-5678 또는 010-1234-5678"
-                                   pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}"
-                                   title="전화번호 형식으로 입력해주세요 (예: 02-1234-5678 또는 010-1234-5678)">
+                            <input type="tel" class="form-control" id="storeContact"
+                                placeholder="예: 02-1234-5678 또는 010-1234-5678" pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}"
+                                title="전화번호 형식으로 입력해주세요 (예: 02-1234-5678 또는 010-1234-5678)">
                             <div class="invalid-feedback">
                                 올바른 전화번호 형식으로 입력해주세요.
                             </div>
@@ -615,8 +625,7 @@
                         <div class="mb-3">
                             <label for="storePrice" class="form-label">판매 가격</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="storePrice" 
-                                       min="0" step="100" required>
+                                <input type="number" class="form-control" id="storePrice" min="0" step="100" required>
                                 <span class="input-group-text">원</span>
                             </div>
                         </div>
