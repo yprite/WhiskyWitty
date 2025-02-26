@@ -3,6 +3,8 @@ from typing import List, Optional
 from datetime import datetime
 from .review import Review
 from .store import Store
+from fastapi import Form
+
 
 class Profile(BaseModel):
     """주류 프로필 모델"""
@@ -15,12 +17,12 @@ class Profile(BaseModel):
 
 class LiquorBase(BaseModel):
     """주류 기본 모델"""
-    name: str = Field(..., description="주류 이름")
-    type: str = Field(..., description="주류 종류")
-    description: str = Field(..., description="설명")
-    rating: float = Field(..., ge=0, le=5, description="평점")
-    image: str = Field(..., description="이미지 URL")
-    profile: Profile = Field(..., description="주류 프로필")
+    name: str = Form(..., description="주류 이름")
+    type: str = Form(..., description="주류 종류")
+    description: str = Form(..., description="설명")
+    rating: float = Form(..., ge=0, le=5, description="평점")
+    image: bytes = Form(..., description="이미지 바이너리")
+    profile: Profile = Form(..., description="주류 프로필")
 
 class LiquorCreate(LiquorBase):
     """주류 생성 모델"""
@@ -40,5 +42,5 @@ class LiquorSummary(BaseModel):
     name: str
     type: str
     rating: float
-    image: str
+    image: bytes
     description: str = Field(..., description="주류 설명")

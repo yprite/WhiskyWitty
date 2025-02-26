@@ -12,7 +12,7 @@ async def test_client():
 @pytest.fixture(autouse=True)
 async def setup_database():
     # 테스트 데이터베이스 연결
-    await Database.connect_db("mongodb://localhost:27017")
+    await Database.connect_db("mongodb://3.36.132.159:27017")
     db = Database.get_db()
     
     # 테스트 전 데이터 초기화
