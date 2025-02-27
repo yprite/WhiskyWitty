@@ -35,5 +35,26 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  mobile:
+    build: 
+      context: ./mobile
+      dockerfile: Dockerfile
+    ports:
+      - "10011:10011"
+    volumes:
+      - ./mobile:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - REACT_APP_ENV=development
+    networks:
+      - default
+      - app-network
+
 volumes:
-  mongodb_data: 
+  mongodb_data:
+
+networks:
+  app-network:
+    driver: bridge 

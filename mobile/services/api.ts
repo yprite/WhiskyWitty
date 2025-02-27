@@ -1,8 +1,9 @@
+import env from '@/config/env';
 import axios from 'axios';
 import { Liquor } from '@/types/liquor';
 
 const api = axios.create({
-  baseURL: 'http://localhost:20010/api', // 실제 API 서버 주소로 변경 필요
+  baseURL: `${env.apiUrl}/api`,
 });
 
 export const liquorAPI = {
