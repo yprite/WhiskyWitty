@@ -6,11 +6,11 @@ WhiskyWhiz is a community-driven whisky rating platform where whisky lovers can 
 
 ## 🚀 Features
 
-✅ Rate & Review – Share your thoughts on your favorite whiskies!
-✅ Hexagon Breakdown Chart – Get visual insights into aroma, complexity, finish, and more!
-✅ Filter & Sort – Find the perfect whisky by brand, type, and price!
-✅ Live Whisky Rankings – See top-rated whiskies sorted in real-time!
-✅ Sleek & Responsive UI – Built for a smooth experience on any device!
+- ✅ Rate & Review – Share your thoughts on your favorite whiskies!
+- ✅ Hexagon Breakdown Chart – Get visual insights into aroma, complexity, finish, and more!
+- ✅ Filter & Sort – Find the perfect whisky by brand, type, and price!
+- ✅ Live Whisky Rankings – See top-rated whiskies sorted in real-time!
+- ✅ Sleek & Responsive UI – Built for a smooth experience on any device!
 
 ---
 
