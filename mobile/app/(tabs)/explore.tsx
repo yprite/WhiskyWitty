@@ -1,109 +1,157 @@
-import { StyleSheet, Image, Platform } from 'react-native';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { LiquorItem } from '@/components/LiquorItem';
+import { LiquorDetailModal } from '@/components/LiquorDetailModal';
+import { AddLiquorModal } from '@/components/AddLiquorModal';
+import { useState, useCallback, useEffect } from 'react';
+import { liquorAPI } from '@/services/api';
+import { Liquor } from '@/types/liquor';
 
-export default function TabTwoScreen() {
+export default function HomeScreen() {
+  const [searchText, setSearchText] = useState('');
+  const [selectedLiquor, setSelectedLiquor] = useState<typeof liquors[0] | undefined>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [liquors, setLiquors] = useState<Liquor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 주류 목록 로딩
+  useEffect(() => {
+    loadLiquors();
+  }, []);
+
+  const loadLiquors = async () => {
+    try {
+      setIsLoading(true);
+      const response = await liquorAPI.getAll();
+      setLiquors(response.data);
+    } catch (err) {
+      setError('주류 목록을 불러오는데 실패했습니다.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 검색어로 필터링된 데이터
+  const filteredLiquors = useCallback(() => {
+    if (!searchText) return liquors;
+    return liquors.filter(liquor => 
+      liquor.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      liquor.type.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [liquors, searchText]);
+
+  const handleLiquorPress = (liquor: typeof liquors[0]) => {
+    setSelectedLiquor(liquor);
+    setModalVisible(true);
+  };
+
+  // 주류 추가
+  const handleAddLiquor = async (newLiquor: Omit<Liquor, 'id' | 'rating'>) => {
+    try {
+      const response = await liquorAPI.create(newLiquor);
+      setLiquors(prev => [...prev, response.data]);
+      setAddModalVisible(false);
+    } catch (err) {
+      alert('주류 추가에 실패했습니다.');
+      console.error(err);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <ThemedView style={styles.container}>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0d6efd" />
+      ) : error ? (
+        <ThemedText style={styles.error}>{error}</ThemedText>
+      ) : (
+        <ScrollView>
+          <ThemedText type="title">우리들의 술평가</ThemedText>
+          <ThemedText style={styles.subtitle}>주당들의 솔직한 리뷰</ThemedText>
+          
+          <ThemedView style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="술 이름이나 종류로 검색..."
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+            <TouchableOpacity 
+              style={styles.addButton}
+              onPress={() => setAddModalVisible(true)}
+            >
+              <ThemedText style={styles.buttonText}>추가</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+
+          <ThemedView style={styles.listContainer}>
+            {filteredLiquors().map(liquor => (
+              <LiquorItem
+                key={liquor.id}
+                name={liquor.name}
+                type={liquor.type}
+                rating={liquor.rating}
+                onPress={() => handleLiquorPress(liquor)}
+              />
+            ))}
+          </ThemedView>
+        </ScrollView>
+      )}
+
+      <AddLiquorModal
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onSubmit={handleAddLiquor}
+      />
+      
+      <LiquorDetailModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        liquor={selectedLiquor}
+      />
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    padding: 20,
   },
-  titleContainer: {
+  subtitle: {
+    color: '#666',
+    marginBottom: 20,
+  },
+  searchContainer: {
     flexDirection: 'row',
-    gap: 8,
+    marginBottom: 20,
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+  },
+  addButton: {
+    backgroundColor: '#0d6efd',
+    padding: 10,
+    borderRadius: 5,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white',
+  },
+  listContainer: {
+    flex: 1,
+  },
+  error: {
+    color: 'red',
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
